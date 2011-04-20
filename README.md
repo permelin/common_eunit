@@ -3,12 +3,14 @@ EUnit masquerading as Common Test
 
 Common EUnit lets you write test suites for EUnit that looks like suites for Common Test.
 
-Why would you want to do that? Because when you do system and integration testing you usually need to do a lot of setup and teardown, and that can otherwise be cumbersome in EUnit. Other than that, EUnit is very capable even when you move beyond unit testing.
+Why would you want to do that? Because when you do system and integration testing you usually need to do a lot of setup and teardown, which can otherwise be cumbersome in EUnit. Other than that, EUnit is very capable even when you move beyond unit testing.
+
+EUnit has the concept of tests as data. You can hand it nested representations of sets of tests. Common EUnit is a test generator that converts a test suite module into such a representation and hands it over to EUnit to execute.
 
 Example
 -------
 
-The example below is included in `tests/demo_tests.erl` and can be started like this:
+The example below can be found in `tests/demo_tests.erl` and can be started like this:
 
     $ erl -pz $(pwd)/ebin
     Erlang R14B02 (erts-5.8.3) [source] [smp:2:2] [rq:2] [async-threads:0] [hipe] [kernel-poll:false]
@@ -17,7 +19,7 @@ The example below is included in `tests/demo_tests.erl` and can be started like 
     1> eunit:test(demo_tests).
       All 52 tests passed.
 
-Please note that we're running this through EUnit. If you include the `common_eunit.hrl` header as below you can run EUnit as normal.
+Please note that we simply invoked EUnit here. If you include the `common_eunit.hrl` header you can then run EUnit as usual.
 
     -module(demo_tests).
     
@@ -84,7 +86,7 @@ Please note that we're running this through EUnit. If you include the `common_eu
 
 Callbacks
 ---------
-All the callbacks are supported.
+All the Common Test callbacks are supported.
 
 * `suite/0`
 * `all/0`
@@ -126,12 +128,15 @@ What is missing
 * Repeating groups
 * `data_dir`
 * `priv_dir`
-* Many, many other things of course
+* Many, many other things
 
-How to run
-----------
+Usage
+-----
+As long as your test suite includes this header and you have `common_eunit/ebin` in your code path you should be able to use EUnit as usual.
 
-Run all included tests:
+    -include_lib("common_eunit/include/common_eunit.hrl").
+
+For example, running all included tests:
 
     $ erl -pz $(pwd)/ebin
     Erlang R14B02 (erts-5.8.3) [source] [smp:2:2] [rq:2] [async-threads:0] [hipe] [kernel-poll:false]
@@ -147,7 +152,7 @@ Run all included tests:
     2> eunit:test({dir, "ebin"}).
       All 188 tests passed.
     
-Run a single test case:
+If you want to run a single test case instead of the full suite you have to call common_eunit directly:
 
     2> common_eunit:test(demo_tests, [insert]).
       Test passed.
