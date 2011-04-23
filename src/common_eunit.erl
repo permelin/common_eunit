@@ -7,7 +7,7 @@
 -type test_name() :: atom()
                    | {group, atom()}.
 
--type test_rep()  :: {{module(), atom(), arity()}, fun()} 
+-type test_rep()  :: {{atom(), atom(), arity()}, fun()} 
                    | {'setup', fun(), fun()}
                    | {'setup', fun(), fun(), fun()}
                    | {atom(), test_rep()}
@@ -21,15 +21,15 @@
 -type test_fun()  :: fun((config()) -> test_rep()).
 
 
--spec test(module()) -> 'ok' | 'error'.
+-spec test(atom()) -> 'ok' | 'error'.
 test(Module) ->
     test(Module, Module:all()).
 
--spec test(module(), test_name() | [test_name()]) -> 'ok' | 'error'.
+-spec test(atom(), test_name() | [test_name()]) -> 'ok' | 'error'.
 test(Module, Cases) ->
     eunit:test(test_generator(test_module_name(Module), Cases)).
 
--spec test_generator(module(), test_name() | [test_name()]) -> test_rep().
+-spec test_generator(atom(), test_name() | [test_name()]) -> test_rep().
 test_generator(Module, Cases) ->
     Control = case erlang:function_exported(Module, suite, 0) of
         true  -> Module:suite();
@@ -41,7 +41,7 @@ test_generator(Module, Cases) ->
     % Start with an empty config, return the full test representation.
     SuiteFun([]).
 
--spec expand_cases(module(), test_name() | [test_name()]) -> test_fun().
+-spec expand_cases(atom(), test_name() | [test_name()]) -> test_fun().
 expand_cases(Module, Cases) ->
     if is_list(Cases) ->
             TestFuns = [ expand_case(Module, Case) || Case <- Cases ],
@@ -50,7 +50,7 @@ expand_cases(Module, Cases) ->
            expand_cases(Module, [Cases])
     end.
 
--spec expand_case(module(), test_name()) -> test_fun().
+-spec expand_case(atom(), test_name()) -> test_fun().
 expand_case(Module, CaseName) when is_atom(CaseName) ->
     TestFun = fun(Config) ->
         % There are several ways to represent a test in EUnit. We use this:
@@ -106,7 +106,7 @@ control_wrapper([], TestFun) ->
 %% If we wrap and then exactly with what depend on which init_per_* and
 %% end_per_* functions are exported by the module.
 %%
--spec setup_wrapper(module(), test_fun(), Callback, Callback) -> test_fun()
+-spec setup_wrapper(atom(), test_fun(), Callback, Callback) -> test_fun()
         when Callback :: {atom(), list()}.
 setup_wrapper(Module, TestFun, {Setup, SA}, {Cleanup, CA}) ->
     case erlang:function_exported(Module, Setup, length(SA) + 1) of
@@ -141,7 +141,7 @@ setup_wrapper(Module, TestFun, {Setup, SA}, {Cleanup, CA}) ->
 %% Returns both a list of any group specific control properties as well as a
 %% list of all the group's members (test cases and other groups).
 %%
--spec group_specification(module(), atom()) -> {[control()], [test_name()]}.
+-spec group_specification(atom(), atom()) -> {[control()], [test_name()]}.
 group_specification(Module, GroupName) ->
     case lists:keyfind(GroupName, 1, Module:groups()) of
         {_, Control, Cases} when is_list(Control), is_list(Cases) ->
@@ -154,7 +154,7 @@ group_specification(Module, GroupName) ->
             exit({bad_group_spec, GroupName})
     end.
 
--spec test_module_name(module()) -> module().
+-spec test_module_name(atom()) -> atom().
 test_module_name(Module) ->
     TestModuleSuffix = "_tests",
     case lists:suffix(TestModuleSuffix, atom_to_list(Module)) of
