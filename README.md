@@ -32,9 +32,7 @@ Please note that we simply invoked EUnit here. If you include the `common_eunit.
         [lookup_missing, insert, {group, atomic}].
     
     groups() ->
-        % We don't have Common Test's repeating groups feature, so we have to
-        % fake it with a list comprehension.
-        [{atomic, [parallel], [ update_counter || _ <- lists:seq(1, 50) ]}].
+        [{atomic, [parallel, {repeat, 50}], [update_counter]}].
     
     %%% Setup and cleanup
     
@@ -125,7 +123,6 @@ Where you would call `test_server:start_node/3` with Common Test you can often g
 What is missing
 ---------------
 * Shuffled tests
-* Repeating groups
 * `data_dir`
 * `priv_dir`
 * Many, many other things
@@ -150,7 +147,7 @@ For example, running all included tests:
     Recompile: tests/demo_tests
     up_to_date
     2> eunit:test({dir, "ebin"}).
-      All 188 tests passed.
+      All 201 tests passed.
     
 If you want to run a single test case instead of the full suite you have to call common_eunit directly:
 

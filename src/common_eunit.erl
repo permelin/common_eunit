@@ -91,6 +91,8 @@ control_wrapper([Control|T], TestFun0) ->
                     MSs           -> MSs / 1000
                 end,
                 {timeout, Seconds, TestFun1(Config)};
+            {repeat, N} ->
+                [ TestFun1(Config) || _ <- lists:seq(1, N) ];
             C when is_atom(C) ->
                 {C, TestFun1(Config)};
             {C, Arg} ->

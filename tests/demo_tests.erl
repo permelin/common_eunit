@@ -9,9 +9,7 @@ all() ->
     [lookup_missing, insert, {group, atomic}].
 
 groups() ->
-    % We don't have Common Test's repeating groups feature, so we have to
-    % fake it with a list comprehension.
-    [{atomic, [parallel], [ update_counter || _ <- lists:seq(1, 50) ]}].
+    [{atomic, [parallel, {repeat, 50}], [update_counter]}].
 
 %%% Setup and cleanup
 

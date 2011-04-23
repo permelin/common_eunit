@@ -7,22 +7,22 @@
 %%%
 
 suite() ->
-    [{inparallel, 8}, {timeout, 1}].
+    [{repeat, 2}, {inparallel, 8}, {timeout, 1}].
 
 all() ->
     [simple,
      {group, main},
-     {group, order},
+     {group, ordering},
      {group, many},
      {group, empty}].
 
 groups() ->
     [{main, [simple, {group, nested}]},
      {nested, [simple]},
-     {order, [inorder], [{group, sequential}, {group, parallel}]},
-     {sequential, [ singleton || _ <- lists:seq(1, 20) ]},
-     {parallel, [inparallel, {timeout, 0.2}], [ slow || _ <- lists:seq(1, 10) ]},
-     {many, [ many || _ <- lists:seq(1, 100) ]},
+     {ordering, [sequence], [{group, one_at_a_time}, {group, all_at_once}]},
+     {one_at_a_time, [{repeat, 5}], [singleton, singleton]},
+     {all_at_once, [parallel, {timeout, 0.2}, {repeat, 10}], [slow]},
+     {many, [{repeat, 50}], [many]},
      {empty, [], []}].
 
 
@@ -34,7 +34,7 @@ init_per_suite(Config) ->
     Config.
 
 end_per_suite(_Config) ->
-    ?assertEqual([{many, 100}, {seq, 20}, {simple, 3}, {slow, 10}],
+    ?assertEqual([{many, 100}, {seq, 20}, {simple, 6}, {slow, 20}],
                  lists:sort(ets:tab2list(test_state))).
 
 
