@@ -18,7 +18,7 @@
 -type control()   :: tuple()
                    | atom().
 
--type test_fun()  :: fun((config()) -> test_rep()).
+-type test_fun()  :: fun((config()) -> test_rep() | [test_rep()]).
 
 
 -spec test(atom()) -> 'ok' | 'error'.
