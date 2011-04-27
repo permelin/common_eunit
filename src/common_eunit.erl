@@ -75,9 +75,9 @@ fixture_callbacks(testcase) -> {init_per_testcase, end_per_testcase}.
 %% between init_per_ and the underlying test cases.
 %%
 -spec props(level()) -> {[atom()], [atom()]}.
-props(suite)    -> {[timetrap], [parallel, inorder, repeat]};
-props(group)    -> {[timetrap], [parallel, inorder, repeat]};
-props(testcase) -> {[timetrap], [parallel, inorder, repeat]}.
+props(suite)    -> {[timetrap, node, spawn], [parallel, inorder, repeat]};
+props(group)    -> {[node, spawn, timetrap], [parallel, inorder, repeat]};
+props(testcase) -> {[node, spawn, timetrap], [parallel, inorder, repeat]}.
 
 %% Add test properties and calls to the appropriate init_per_ and end_per_.
 %%
@@ -147,7 +147,11 @@ add_props([Prop|T], Instant0) ->
         {repeat, N} ->
             fun(Fixtures) ->
                 [ Instant1(Fixtures) || _ <- lists:seq(1, N) ]
-            end
+            end;
+        {node, Name} ->
+            start_node_wrapper(Name, Instant1);
+        {spawn, Name} ->
+            spawn_on_node_wrapper(Name, Instant1)
     end;
 add_props([], Instant) ->
     Instant.
@@ -228,6 +232,31 @@ group_specification(Module, Group) ->
             exit({missing_group, Group});
         _ ->
             exit({bad_group_spec, Group})
+    end.
+
+-spec start_node_wrapper(atom(), eu_instant()) -> eu_instant().
+start_node_wrapper(Name, Instant) ->
+    [_, Host] = string:tokens(atom_to_list(node()), "@"),
+    fun(Fixtures0) ->
+        {setup,
+            fun() ->
+                    {ok, Node} = slave:start_link(Host, Name),
+                    true = rpc:call(Node, code, set_path, [code:get_path()]),
+                    {module, _} = rpc:call(Node, code, load_file, [?MODULE]),
+                    [{Name, Node}|Fixtures0]
+            end,
+            fun(Fixtures1) ->
+                    Node = proplists:get_value(Name, Fixtures1),
+                    ok = slave:stop(Node)
+            end,
+            Instant}
+    end.
+
+-spec spawn_on_node_wrapper(atom(), eu_instant()) -> eu_instant().
+spawn_on_node_wrapper(Name, Instant) ->
+    fun(Fixtures) ->
+        Node = proplists:get_value(Name, Fixtures),
+        {spawn, Node, Instant(Fixtures)}
     end.
 
 %% Add a _tests suffix to the module name if missing.
