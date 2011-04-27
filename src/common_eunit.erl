@@ -26,7 +26,7 @@
                     | {atom(), term(), eu_test_rep()}.
 
 %% This is an input type for us, which we transform into eu_control().
--type prop() :: atom()             % E.g. 'sequence' or 'parallel'
+-type prop() :: atom()             % E.g. 'parallel'
               | {atom(), term()}.  % E.g. {timetrap, {seconds, 30}}
 
 %% Test case identification.
@@ -75,9 +75,9 @@ fixture_callbacks(testcase) -> {init_per_testcase, end_per_testcase}.
 %% between init_per_ and the underlying test cases.
 %%
 -spec props(level()) -> {[atom()], [atom()]}.
-props(suite)    -> {[timetrap], [parallel, sequence, repeat]};
-props(group)    -> {[timetrap], [parallel, sequence, repeat]};
-props(testcase) -> {[timetrap, parallel, sequence, repeat], []}.
+props(suite)    -> {[timetrap], [parallel, inorder, repeat]};
+props(group)    -> {[timetrap], [parallel, inorder, repeat]};
+props(testcase) -> {[timetrap, parallel, inorder, repeat], []}.
 
 %% Add test properties and calls to the appropriate init_per_ and end_per_.
 %%
@@ -130,7 +130,7 @@ add_props([Prop|T], Instant0) ->
             fun(Fixtures) ->
                 {inparallel, N, Instant1(Fixtures)}
             end;
-        sequence ->
+        inorder ->
             fun(Fixtures) ->
                 {inorder, Instant1(Fixtures)}
             end;

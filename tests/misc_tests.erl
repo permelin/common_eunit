@@ -20,7 +20,7 @@ all() ->
 groups() ->
     [{main, [simple, {group, nested}]},
      {nested, [simple]},
-     {ordering, [sequence], [{group, one_at_a_time}, {group, all_at_once}]},
+     {ordering, [inorder], [{group, one_at_a_time}, {group, all_at_once}]},
      {one_at_a_time, [{repeat, 5}], [singleton, singleton]},
      {all_at_once, [parallel, {timetrap, 200}, {repeat, 10}], [slow]},
      {many, [{repeat, 50}], [many]},
