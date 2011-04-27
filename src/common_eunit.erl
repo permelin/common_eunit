@@ -77,7 +77,7 @@ fixture_callbacks(testcase) -> {init_per_testcase, end_per_testcase}.
 -spec props(level()) -> {[atom()], [atom()]}.
 props(suite)    -> {[timetrap], [parallel, inorder, repeat]};
 props(group)    -> {[timetrap], [parallel, inorder, repeat]};
-props(testcase) -> {[timetrap, parallel, inorder, repeat], []}.
+props(testcase) -> {[timetrap], [parallel, inorder, repeat]}.
 
 %% Add test properties and calls to the appropriate init_per_ and end_per_.
 %%
