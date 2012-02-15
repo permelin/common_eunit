@@ -108,7 +108,14 @@ expand_case(Module, Case) when is_atom(Case) ->
         % {{M, F, A}, Fun/0}
         % It has the advantage that it lets EUnit give good feedback about
         % exactly which test function is being executed.
-        {{Module, Case, 1}, fun() -> apply(Module, Case, [Fixtures]) end}
+        %
+        % EUnit applies a rather short default timeout to all tests.
+        % You can override it with a *shorter* timeout on a higher level,
+        % but if you want a *longer* timeout you must do it directly around
+        % the actual test representation (where we are now). So we'll set 
+        % a really long timeout here to give us more flexibility.
+        {timeout, 3600,
+            {{Module, Case, 1}, fun() -> apply(Module, Case, [Fixtures]) end}}
     end,
     wrap(Module, Instant, Props, testcase, [Case]);
 expand_case(Module, {group, Group}) ->
