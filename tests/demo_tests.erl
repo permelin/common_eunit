@@ -24,11 +24,11 @@ init_per_suite(Config) ->
 end_per_suite(_Config) ->
     ok.
 
-init_per_testcase(Config) ->
+init_per_testcase(_Case, Config) ->
     % Set up fixtures here.
     Config.
 
-end_per_testcase(_Config) ->
+end_per_testcase(_Case, _Config) ->
     ok.
 
 
