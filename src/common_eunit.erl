@@ -2,6 +2,7 @@
 
 -export([test/1,
          test/2,
+         test/3,
          test_generator/2]).
 
 %% This is called Config in Common Test. It is the return type of the
@@ -46,7 +47,10 @@ test(Module) ->
 
 -spec test(atom(), [case_id()]) -> 'ok' | 'error'.
 test(Module, Cases) ->
-    eunit:test(test_generator(test_module_name(Module), Cases)).
+    test(Module, Cases, []).
+
+test(Module, Cases, Options) ->
+    eunit:test(test_generator(test_module_name(Module), Cases), Options).
 
 -spec test_generator(atom(), [case_id()]) -> eu_test_rep().
 test_generator(Module, Cases) ->
